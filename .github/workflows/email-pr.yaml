@@ -4,7 +4,8 @@ on:
   pull_request:
     branches:
       - main
-      - test
+      - Test
+      - Dev  
     types: [opened, reopened, synchronize]
 
 env:
