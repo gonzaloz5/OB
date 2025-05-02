@@ -48,6 +48,6 @@ jobs:
           password: ${{ env.EMAIL_PASS }}
           subject: "🚨 PR to ${{ github.base_ref }} - ${{ github.event.pull_request.title }}"
           body: ${{ env.BODY }}
-          to: recipient@example.com
+          to: gonzaloz5@hotmail.com
           from: GitHub Actions <${{ env.EMAIL_USER }}>
 
