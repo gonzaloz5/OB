@@ -1,11 +1,11 @@
-name: Backup main to S3 semanalmente
+name: Respaldo de la rama main Semanalmente en S3 Aws
 
 on:
   push:
     branches:
       - Dev
-#  schedule:
-#    - cron: '0 2 * * 1'  # Todos los lunes a las 02:00 UTC
+  schedule:
+    - cron: '0 3 * * 2'  # Todos los martes a las 03:00 UTC
   workflow_dispatch:   
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN}}
-          aws-region: us-east-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload to S3
-        run: aws s3 cp code-backup.zip s3://${{ secrets.BUCKET_NAME }}/weekly-backups/$(date +'%Y-%m-%d')-code-backup.zip 
+        run: aws s3 cp code-backup.zip s3://${{ secrets.BUCKET_NAME }}/backups-semanal/$(date +'%Y-%m-%d-%H%M')-code-backup.zip 
