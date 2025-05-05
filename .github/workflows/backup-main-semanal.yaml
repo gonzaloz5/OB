@@ -1,3 +1,5 @@
+name: Backup main to S3 semanalmente
+
 on:
   schedule:
     - cron: '0 2 * * 1'  # Todos los lunes a las 02:00 UTC
