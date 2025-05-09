@@ -46,6 +46,12 @@ jobs:
           echo "📊 **Stats**: +${{ github.event.pull_request.additions }} / -${{ github.event.pull_request.deletions }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Get contributor emails
+        id: contributors
+        run: |
+          EMAILS=$(git log --format='%ae' origin/${{ github.base_ref }}...${{ github.sha }} | sort | uniq | paste -sd "," -)
+          echo "emails=$EMAILS" >> $GITHUB_OUTPUT
+
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
         with:
@@ -55,6 +61,6 @@ jobs:
           password: ${{ env.EMAIL_PASS }}
           subject: "🚨 PR to ${{ github.base_ref }} - ${{ github.event.pull_request.title }}"
           body: ${{ env.BODY }}
-          to: gonzaloz5@hotmail.com
+          to: ${{ steps.contributors.outputs.emails }}
           from: GitHub Actions <${{ env.EMAIL_USER }}>
 
