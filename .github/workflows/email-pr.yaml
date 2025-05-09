@@ -1,11 +1,11 @@
-name: Email on Pull Request to main or test
+name: Email on Pull Request to main, test, or dev
 
 on:
   pull_request:
     branches:
       - main
-      - Test
-      - Dev  
+      - test
+      - dev
     types: [opened, reopened, synchronize]
 
 env:
@@ -15,17 +15,23 @@ env:
 jobs:
   send-email:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   
 
-      - name: Get changed files
-        id: changed-files
+      - name: Fetch and get changed files
+        id: changed
         run: |
-          echo "FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | paste -sd ',')" >> $GITHUB_ENV
+          git fetch origin ${{ github.base_ref }}
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }})
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Generate email body
-        id: email-body
         run: |
           echo "BODY<<EOF" >> $GITHUB_ENV
           echo "🚀 A pull request targeting the \`${{ github.base_ref }}\` branch has been created or updated." >> $GITHUB_ENV
@@ -34,8 +40,8 @@ jobs:
           echo "🔗 **URL**: ${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
           echo "👤 **Author**: ${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
-          echo "�� **Files changed**:" >> $GITHUB_ENV
-          echo "${FILES}" | tr ',' '\n' >> $GITHUB_ENV
+          echo "📄 **Files changed:**" >> $GITHUB_ENV
+          echo "${{ steps.changed.outputs.files }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "📊 **Stats**: +${{ github.event.pull_request.additions }} / -${{ github.event.pull_request.deletions }}" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
