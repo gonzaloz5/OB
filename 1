@@ -1,0 +1,32 @@
+name: Backup main to S3 semanalmente
+
+on:
+  push:
+    branches:
+      - Dev
+#  schedule:
+#    - cron: '0 2 * * 1'  # Todos los lunes a las 02:00 UTC
+  workflow_dispatch:   
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Zip code
+        run: zip -r code-backup.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload to S3
+        run: aws s3 cp code-backup.zip s3://${{ secrets.BUCKET_NAME }}/weekly-backups/$(date +'%Y-%m-%d')-code-backup.zip 
